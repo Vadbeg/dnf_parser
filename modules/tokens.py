@@ -1,12 +1,16 @@
 """Module with tokens for parser"""
 
 
-class EOF:
+class TOKEN:
+    pass
+
+
+class EOF(TOKEN):
     def __init__(self):
         pass
 
 
-class CONST:
+class CONST(TOKEN):
     VALUES = ['0', '1']
 
     def __init__(self, value: str):
@@ -20,7 +24,7 @@ class CONST:
         return False
 
 
-class SYBMOL:
+class SYBMOL(TOKEN):
     VALUES = [
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
@@ -37,7 +41,7 @@ class SYBMOL:
         return False
 
 
-class OPEN_BRACKET:
+class OPEN_BRACKET(TOKEN):
     VALUE = '('
 
     def __init__(self, value: str):
@@ -51,7 +55,7 @@ class OPEN_BRACKET:
         return False
 
 
-class CLOSE_BRACKET:
+class CLOSE_BRACKET(TOKEN):
     VALUE = ')'
 
     def __init__(self, value: str):
@@ -79,7 +83,7 @@ class AND_OPERATOR:
         return False
 
 
-class OR_OPERATOR:
+class OR_OPERATOR(TOKEN):
     VALUE = '\\/'
 
     def __init__(self, value: str):
@@ -93,7 +97,7 @@ class OR_OPERATOR:
         return False
 
 
-class NOT_OPERATOR:
+class NOT_OPERATOR(TOKEN):
     VALUE = '!'
 
     def __init__(self, value: str):
@@ -107,7 +111,7 @@ class NOT_OPERATOR:
         return False
 
 
-class IMPLICATION:
+class IMPLICATION(TOKEN):
     VALUE = '->'
 
     def __init__(self, value: str):
@@ -121,7 +125,7 @@ class IMPLICATION:
         return False
 
 
-class EQUIVALENCE:
+class EQUIVALENCE(TOKEN):
     VALUE = '~'
 
     def __init__(self, value: str):

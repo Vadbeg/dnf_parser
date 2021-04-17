@@ -6,3 +6,8 @@ class NoTokenError(ValueError):
 
     pass
 
+
+class InvalidSyntax(ValueError):
+    """Is raised when string uses bad syntax"""
+
+    pass
