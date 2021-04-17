@@ -16,52 +16,52 @@ from modules.tokens import (
 
 class Parser:
     def __init__(self, lexer: Lexer):
-        self.lexer = lexer
+        self.__lexer = lexer
 
-        self.current_token = self.lexer.peek()
-        self.token_index = 0
+        self.__current_token = self.__lexer.peek()
+        self.__token_index = 0
 
-    def eat(self, token_type: Type[TOKEN]):
-        token = self.current_token
+    def __eat(self, token_type: Type[TOKEN]):
+        token = self.__current_token
 
         if isinstance(token, token_type):
-            self.token_index += 1
-            self.current_token = self.lexer.peek(index=self.token_index)
+            self.__token_index += 1
+            self.__current_token = self.__lexer.peek(index=self.__token_index)
         else:
-            raise InvalidSyntax(f'Invalid syntax on index: {self.token_index}')
+            raise InvalidSyntax(f'Invalid syntax on index: {self.__token_index}')
 
-    def factor(self) -> Union[BinOp, Value]:
-        token = self.current_token
+    def __factor(self) -> Union[BinOp, Value]:
+        token = self.__current_token
 
         if isinstance(token, (CONST, SYBMOL)):
-            self.eat(type(token))
+            self.__eat(type(token))
 
             return Value(token=token)
         elif isinstance(token, OPEN_BRACKET):
-            self.eat(OPEN_BRACKET)
-            node = self.term()  # TODO: Change it!
-            self.eat(CLOSE_BRACKET)
+            self.__eat(OPEN_BRACKET)
+            node = self.__term()  # TODO: Change it!
+            self.__eat(CLOSE_BRACKET)
 
             return node
 
-    def term(self):
-        left_node = self.factor()
+    def __term(self) -> Union[BinOp, Value]:
+        left_node = self.__factor()
 
         while isinstance(
-                self.current_token,
+                self.__current_token,
                 (AND_OPERATOR, OR_OPERATOR)
         ):
-            token = self.current_token
+            token = self.__current_token
 
-            self.eat(type(token))
+            self.__eat(type(token))
 
-            right_node = self.factor()
+            right_node = self.__factor()
             left_node = BinOp(left=left_node, operation=token, right=right_node)
 
         return left_node
 
-    def expr(self):
-        node = self.term()
+    # def expr(self):
+    #     node = self.__term()
 
-    def parse(self):
-        return self.term()
+    def parse(self) -> Union[BinOp, Value]:
+        return self.__term()

@@ -1,6 +1,6 @@
 """Module with lexer"""
 
-from typing import Union
+from typing import Union, List
 
 from modules.lexer.characters_reader import CharReader
 from modules.tokens import (
@@ -73,14 +73,6 @@ class Lexer:
     def get_tokens(self):
         return self.__resulted_tokens
 
-    def tokens_to_string(self):
-        resulted_string = ''
-
-        for curr_token in self.__resulted_tokens:
-            resulted_string += curr_token.value
-
-        return resulted_string
-
     def peek(self, index: int = 0) -> TOKEN:
         if index >= len(self.__resulted_tokens):
             # raise EOFError(f'Index {index} is bigger or equal to string length {len(self.string_to_parse)}')
@@ -99,3 +91,13 @@ class Lexer:
         self.__resulted_tokens = self.__resulted_tokens[:index] + self.__resulted_tokens[index + 1:]
 
         return token
+
+    @staticmethod
+    def tokens_to_string(tokens: List[TOKEN]) -> str:
+        resulted_string = ''
+
+        for curr_token in tokens:
+            resulted_string += curr_token.value
+
+        return resulted_string
+
