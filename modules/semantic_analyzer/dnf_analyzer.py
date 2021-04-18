@@ -120,7 +120,9 @@ class DNFAnalyzer:
             if not isinstance(root.left, Value):
                 is_dnf = self.__analyzing(root.left)
 
-                if is_dnf and \
+                if is_dnf and isinstance(root.operation, AND_OPERATOR):
+                    is_dnf = True
+                elif is_dnf and \
                         not isinstance(root.operation, OR_OPERATOR) and \
                         not isinstance(root.left, NotOp):
                     return False
@@ -128,6 +130,8 @@ class DNFAnalyzer:
             if not isinstance(root.right, Value):
                 is_dnf = self.__analyzing(root.right)
 
+                if is_dnf and isinstance(root.operation, AND_OPERATOR):
+                    is_dnf = True
                 if is_dnf and \
                         not isinstance(root.operation, OR_OPERATOR) and \
                         not isinstance(root.right, NotOp):

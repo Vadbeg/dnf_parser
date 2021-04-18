@@ -5,8 +5,8 @@ from typing import List
 from modules.semantic_analyzer.dnf_analyzer import DNFAnalyzer
 
 TEST_CASES = [
-    r'((((((!A)/\B)/\(!C))\/(A/\((!B)/\(!C))))\/((B/\(!A))/\(!C))))',
-    r'(((A/\A)\/(A/\(!B))))',
+    (r'((((((!A)/\B)/\(!C))\/(A/\((!B)/\(!C))))\/((B/\(!A))/\(!C))))', True),
+    (r'(((A/\A)\/(A/\(!B))))', Exception)
     r'(((A/\B)\/(A/\(!B))))',
     r'(((A/\B)\/(A/\(!B)))A)',
     r'(((A/\B)\/(A/\(!B))))',
