@@ -72,6 +72,10 @@ class DNFAnalyzer:
                     type(node.right.token) not in self.GOOD_TOKENS:
                 raise BadTokensForDNF(f'Bad token: {node.right.token}')
 
+        elif isinstance(node, Value):
+            if node.token not in self.GOOD_TOKENS:
+                raise BadTokensForDNF(f'Bad token: {node.token}')
+
     @staticmethod
     def __check_values(node):
         if isinstance(node, BinOp):
@@ -105,9 +109,12 @@ class DNFAnalyzer:
         self.__check_tokens(node=root)
         self.__check_values(node=root)
 
-        is_dnf = False
+        is_dnf = True
 
         if isinstance(root, BinOp):
+            self.__check_values(node=root.left)
+            self.__check_values(node=root.right)
+
             if isinstance(root.left, Value) and isinstance(root.right, Value):
                 if isinstance(root.operation, AND_OPERATOR):
                     return True
@@ -120,24 +127,34 @@ class DNFAnalyzer:
             if not isinstance(root.left, Value):
                 is_dnf = self.__analyzing(root.left)
 
-                if is_dnf and isinstance(root.operation, AND_OPERATOR):
-                    is_dnf = True
-                elif is_dnf and \
-                        not isinstance(root.operation, OR_OPERATOR) and \
-                        not isinstance(root.left, NotOp):
+                if is_dnf:
+                    if isinstance(root.operation, AND_OPERATOR):
+                        is_dnf = True
+                    elif not isinstance(root.operation, OR_OPERATOR) and \
+                            not isinstance(root.left, NotOp):
+                        return False
+                    elif isinstance(root.operation, OR_OPERATOR) and isinstance(root.left, NotOp):
+                        return False
+                else:
                     return False
 
             if not isinstance(root.right, Value):
                 is_dnf = self.__analyzing(root.right)
 
-                if is_dnf and isinstance(root.operation, AND_OPERATOR):
-                    is_dnf = True
-                if is_dnf and \
-                        not isinstance(root.operation, OR_OPERATOR) and \
-                        not isinstance(root.right, NotOp):
+                if is_dnf:
+                    if isinstance(root.operation, AND_OPERATOR):
+                        is_dnf = True
+                    elif not isinstance(root.operation, OR_OPERATOR) and \
+                            not isinstance(root.right, NotOp):
+                        return False
+                    elif isinstance(root.operation, OR_OPERATOR) and isinstance(root.right, NotOp):
+                        return False
+                else:
                     return False
 
         elif isinstance(root, NotOp):
+            self.__check_values(node=root.value)
+
             if isinstance(root.value, Value):
                 return True
             else:
