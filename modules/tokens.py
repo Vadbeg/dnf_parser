@@ -82,6 +82,16 @@ class AND_OPERATOR:
 
         return False
 
+    def apply(self, a: int, b: int) -> int:
+        if a not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+        if b not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+
+        res = a & b
+
+        return res
+
 
 class OR_OPERATOR(TOKEN):
     VALUE = '\\/'
@@ -95,6 +105,16 @@ class OR_OPERATOR(TOKEN):
             return True
 
         return False
+
+    def apply(self, a: int, b: int) -> int:
+        if a not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+        if b not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+
+        res = a | b
+
+        return res
 
 
 class NOT_OPERATOR(TOKEN):
@@ -110,6 +130,14 @@ class NOT_OPERATOR(TOKEN):
 
         return False
 
+    def apply(self, a: int) -> int:
+        if a not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+
+        res = int(not a)
+
+        return res
+
 
 class IMPLICATION(TOKEN):
     VALUE = '->'
@@ -124,6 +152,16 @@ class IMPLICATION(TOKEN):
 
         return False
 
+    def apply(self, a: int, b: int) -> int:
+        if a not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+        if b not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+
+        res = (not a) | b
+
+        return res
+
 
 class EQUIVALENCE(TOKEN):
     VALUE = '~'
@@ -137,3 +175,13 @@ class EQUIVALENCE(TOKEN):
             return True
 
         return False
+
+    def apply(self, a: int, b: int) -> int:
+        if a not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+        if b not in [0, 1]:
+            raise ValueError(f'Bad values for operations')
+
+        res = ((not a) & (not b)) | (a & b)
+
+        return res
