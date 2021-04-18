@@ -13,7 +13,25 @@ class InvalidSyntax(ValueError):
     pass
 
 
-class SameSymbolInSimpleConjunction(ValueError):
-    """Is raised when simple conjunction contains same symbols"""
+class NotSimpleConjunctionBadOperation(ValueError):
+    """Is raised when leaf of tree is not simple conjunction"""
+
+    pass
+
+
+class NotSimpleConjunctionBadNot(ValueError):
+    """Is raised when leaf of tree is not simple conjunction (not used not for symbol)"""
+
+    pass
+
+
+class NotSimpleConjunctionSameValues(ValueError):
+    """Is raised when leaf of tree is not simple conjunction (not used not for symbol)"""
+
+    pass
+
+
+class BadTokensForDNF(ValueError):
+    """Is raised when tokens are not used for DNF"""
 
     pass

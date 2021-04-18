@@ -27,15 +27,10 @@ class BinOp(AST):
         self.right = right
 
 
-class NotOp(BinOp):
+class NotOp(AST):
     def __init__(
             self, value: Union['BinOp', Value],
-            operation: NOT_OPERATOR):
-        super().__init__(
-            left=None,
-            operation=operation,
-            right=value
-        )
-
+            operation: TOKEN
+    ):
         self.value = value
         self.operation = operation

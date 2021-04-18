@@ -3,7 +3,7 @@
 from modules.lexer.lexer import Lexer
 from modules.parser.parser import Parser
 from modules.parser.ast_nodes import Value, BinOp, NotOp
-
+from modules.semantic_analyzer.dnf_analyzer import DNFAnalyzer
 from modules.tokens import OPEN_BRACKET, CLOSE_BRACKET
 
 
@@ -15,6 +15,12 @@ def postorder_traversal(root):
         res.extend(postorder_traversal(root.left))
         res.append(root)
         res.extend(postorder_traversal(root.right))
+        res.append(CLOSE_BRACKET(value=')'))
+
+    elif hasattr(root, 'value') and isinstance(root, NotOp):
+        res.append(OPEN_BRACKET(value='('))
+        res.append(root)
+        res.extend(postorder_traversal(root.value))
         res.append(CLOSE_BRACKET(value=')'))
     else:
         res = [root]
@@ -39,8 +45,8 @@ def get_string_after_traversal(operations):
 
 if __name__ == '__main__':
     # formula = '!((((!((!A)/\\!B)/\\(C))\\/(A/\\((B)/\\(!C))))\\/((B/\\(A))/\\(C))))'
-    # formula = r'((A\/B)/\(C->F))'
-    formula = r'(A/\B)\/(A/\B)\/(D/\C)\/(F/\G)'
+    formula = r'A/\D/\B'
+    # formula = r'((((((!A)/\B)/\(!C))\/(A/\((!B)/\(!C))))\/(((!A)/\(!B))/\(!C))))'
 
     lexer = Lexer(string_to_parse=formula)
 
@@ -48,8 +54,8 @@ if __name__ == '__main__':
     tokens = lexer.get_tokens()
     res_string = lexer.tokens_to_string(tokens=tokens)
 
-    print(f'String from tokens: {res_string}')
-    print(f'Is string from tokens equal to formula: {res_string == formula}')
+    # print(f'String from tokens: {res_string}')
+    # print(f'Is string from tokens equal to formula: {res_string == formula}')
 
     parser = Parser(lexer=lexer)
 
@@ -60,4 +66,10 @@ if __name__ == '__main__':
     res_string_again = get_string_after_traversal(operations=result)
 
     print(f'String after tree: {res_string_again}')
-    print(f'Is string after traversal equal to formula: {res_string_again == formula}')
+    # print(f'Is string after traversal equal to formula: {res_string_again == formula}')
+
+    dnf_analyzer = DNFAnalyzer(formula_to_analyze=formula)
+
+    res = dnf_analyzer.analyze_formula()
+
+    print(f'Analization result: {res}')
