@@ -41,6 +41,9 @@ class DNFAnalyzer:
     def __get_tree_root(self):
         root = self.__parser.parse()
 
+        if root is None:
+            raise BadTokensForDNF(f'Bad token!')
+
         return root
 
     def analyze_formula(self):
@@ -73,7 +76,7 @@ class DNFAnalyzer:
                 raise BadTokensForDNF(f'Bad token: {node.right.token}')
 
         elif isinstance(node, Value):
-            if node.token not in self.GOOD_TOKENS:
+            if type(node.token) not in self.GOOD_TOKENS:
                 raise BadTokensForDNF(f'Bad token: {node.token}')
 
     @staticmethod

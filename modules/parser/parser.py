@@ -77,4 +77,8 @@ class Parser:
         return node
 
     def parse(self) -> Union[BinOp, Value]:
+        if not isinstance(self.__lexer.peek(0), OPEN_BRACKET) or \
+                not isinstance(self.__lexer.peek(-1), CLOSE_BRACKET):
+            raise InvalidSyntax(f'Bad main brackets!')
+
         return self.__term()

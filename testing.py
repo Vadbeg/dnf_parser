@@ -23,6 +23,8 @@ TEST_CASES = [
     (' ', Exception),
     ('1', Exception),
     ('0', Exception),
+    ('(A)', True),
+    ('(!A)', True),
     (r'(A/\B)', True),
     (r'(A/\(!B))', True),
     (r'(A/\(!A))', Exception)
