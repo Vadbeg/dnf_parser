@@ -2,7 +2,7 @@
 
 from typing import Type, Union
 
-from modules.parser.ast_nodes import BinOp, Value
+from modules.parser.ast_nodes import BinOp, NotOp, Value
 from modules.lexer.lexer import Lexer
 from modules.utils import InvalidSyntax
 from modules.tokens import (
@@ -28,7 +28,7 @@ class Parser:
             self.__token_index += 1
             self.__current_token = self.__lexer.peek(index=self.__token_index)
         else:
-            raise InvalidSyntax(f'Invalid syntax on index: {self.__token_index}')
+            raise InvalidSyntax(f'Invalid syntax on index: {self.__token_index} with type: {token_type}')
 
     def __factor(self) -> Union[BinOp, Value]:
         token = self.__current_token
@@ -39,7 +39,7 @@ class Parser:
             return Value(token=token)
         elif isinstance(token, OPEN_BRACKET):
             self.__eat(OPEN_BRACKET)
-            node = self.__term()  # TODO: Change it!
+            node = self.__expr()  # TODO: Change it!
             self.__eat(CLOSE_BRACKET)
 
             return node
@@ -49,7 +49,8 @@ class Parser:
 
         while isinstance(
                 self.__current_token,
-                (AND_OPERATOR, OR_OPERATOR)
+                (AND_OPERATOR, OR_OPERATOR,
+                 IMPLICATION, EQUIVALENCE)
         ):
             token = self.__current_token
 
@@ -60,8 +61,22 @@ class Parser:
 
         return left_node
 
-    # def expr(self):
-    #     node = self.__term()
+    def __expr(self):
+        node = self.__term()
+
+        print(f'Node: {node} is_in_return: {not isinstance(self.__current_token, NOT_OPERATOR)}')
+
+        while isinstance(
+                self.__current_token, NOT_OPERATOR
+        ):
+            token = self.__current_token
+
+            self.__eat(type(token))
+
+            value_node = self.__factor()
+            node = NotOp(value=value_node, operation=token)
+
+        return node
 
     def parse(self) -> Union[BinOp, Value]:
-        return self.__term()
+        return self.__expr()
