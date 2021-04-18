@@ -11,3 +11,9 @@ class InvalidSyntax(ValueError):
     """Is raised when string uses bad syntax"""
 
     pass
+
+
+class SameSymbolInSimpleConjunction(ValueError):
+    """Is raised when simple conjunction contains same symbols"""
+
+    pass

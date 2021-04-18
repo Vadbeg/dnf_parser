@@ -38,8 +38,9 @@ def get_string_after_traversal(operations):
 
 
 if __name__ == '__main__':
-    formula = '!((((!((!A)/\\!B)/\\(C))\\/(A/\\((B)/\\(!C))))\\/((B/\\(A))/\\(C))))'
-    # formula = r'(A\/B)/\!(A/\B)'
+    # formula = '!((((!((!A)/\\!B)/\\(C))\\/(A/\\((B)/\\(!C))))\\/((B/\\(A))/\\(C))))'
+    # formula = r'((A\/B)/\(C->F))'
+    formula = r'(A/\B)\/(A/\B)\/(D/\C)\/(F/\G)'
 
     lexer = Lexer(string_to_parse=formula)
 
