@@ -81,4 +81,9 @@ class Parser:
                 not isinstance(self.__lexer.peek(-1), CLOSE_BRACKET):
             raise InvalidSyntax(f'Bad main brackets!')
 
-        return self.__term()
+        parse_result = self.__term()
+
+        self.__token_index = 0
+        self.__current_token = self.__lexer.peek(0)
+
+        return parse_result

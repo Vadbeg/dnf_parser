@@ -22,7 +22,7 @@ class Interpreter:
         self.formula_to_analyze = formula_to_analyze
 
         self.__values = None
-        self.__unique_symbols = None
+        self.__unique_token_values = None
 
         self.__parser = self.__create_parser()
 
@@ -30,22 +30,22 @@ class Interpreter:
         lexer = Lexer(string_to_parse=self.formula_to_analyze)
         lexer.parse_tokens()
 
-        self.__unique_symbols = self.__get_unique_symbols(tokens=lexer.get_tokens())
+        self.__unique_token_values = self.__get_unique_symbol_values(tokens=lexer.get_tokens())
 
         parser = Parser(lexer=lexer)
 
         return parser
 
     @property
-    def unique_symbols(self):
-        if self.__unique_symbols is None:
+    def unique_token_values(self):
+        if self.__unique_token_values is None:
             raise ValueError(f'No unique symbols in formula!')
 
-        return self.__unique_symbols
+        return self.__unique_token_values
 
-    @unique_symbols.setter
-    def unique_symbols(self, symbols):
-        self.__unique_symbols = symbols
+    @unique_token_values.setter
+    def unique_token_values(self, symbols):
+        self.__unique_token_values = symbols
 
     @property
     def values(self) -> Dict[str, int]:
@@ -59,8 +59,8 @@ class Interpreter:
         self.__values = input_values
 
     @staticmethod
-    def __check_values(unique_symbols: List[Value], input_values: Dict[str, int]):
-        unique_token_values = set([curr_unique_symbol.value for curr_unique_symbol in unique_symbols])
+    def __check_values(unique_token_values: List[str], input_values: Dict[str, int]):
+        unique_token_values = set(unique_token_values)
         unique_input_values = set(input_values.keys())
 
         intersection = unique_token_values.intersection(unique_input_values)
@@ -69,17 +69,15 @@ class Interpreter:
             raise ValueError(f'Bad input dictionary with symbols mapping!')
 
     @staticmethod
-    def __get_unique_symbols(tokens: List):
-        used_token_values = list()
-        unique_tokens = list()
+    def __get_unique_symbol_values(tokens: List):
+        unique_token_values = list()
 
         for curr_token in tokens:
             if isinstance(curr_token, SYBMOL):
-                if curr_token.value not in used_token_values:
-                    used_token_values.append(curr_token.value)
-                    unique_tokens.append(curr_token)
+                if curr_token.value not in unique_token_values:
+                    unique_token_values.append(curr_token.value)
 
-        return unique_tokens
+        return unique_token_values
 
     def __get_tree_root(self):
         root = self.__parser.parse()
@@ -89,21 +87,27 @@ class Interpreter:
 
         return root
 
+    def __get_real_value_from_value_node(self, node: Value):
+        if isinstance(node.token, SYBMOL):
+            value = self.values[node.value]
+        elif isinstance(node.token, CONST):
+            value = node.value
+        else:
+            raise ValueError(f'Bad token type!')
+
+        return value
+
     def __perform_interpreting(self, root):
         value = 0
 
         if isinstance(root, BinOp):
             if isinstance(root.left, Value):
-                value_left_key = root.left.value
-
-                value_left = self.values[value_left_key]
+                value_left = self.__get_real_value_from_value_node(node=root.left)
             else:
                 value_left = self.__perform_interpreting(root=root.left)
 
             if isinstance(root.right, Value):
-                value_right_key = root.right.value
-
-                value_right = self.values[value_right_key]
+                value_right = self.__get_real_value_from_value_node(node=root.right)
             else:
                 value_right = self.__perform_interpreting(root=root.right)
 
@@ -111,13 +115,13 @@ class Interpreter:
 
         elif isinstance(root, NotOp):
             if isinstance(root.value, Value):
-                value_right_key = root.value.value
-
-                value_right = self.values[value_right_key]
+                value_right = self.__get_real_value_from_value_node(node=root.value)
             else:
                 value_right = self.__perform_interpreting(root=root.value)
 
             value = root.operation.apply(a=value_right)
+        elif isinstance(root, Value):
+            value = self.__get_real_value_from_value_node(node=root)
 
         return value
 
@@ -125,7 +129,7 @@ class Interpreter:
         root = self.__get_tree_root()
 
         self.__check_values(
-            unique_symbols=self.unique_symbols,
+            unique_token_values=self.unique_token_values,
             input_values=self.values
         )
 

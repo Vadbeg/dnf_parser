@@ -14,7 +14,7 @@ class CONST(TOKEN):
     VALUES = ['0', '1']
 
     def __init__(self, value: str):
-        self.value = value
+        self.value = int(value)
 
     @staticmethod
     def is_const(value: str):
