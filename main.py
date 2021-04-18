@@ -38,8 +38,8 @@ def get_string_after_traversal(operations):
 
 
 if __name__ == '__main__':
-    # formula = '((((((A)/\\B)/\\(C))\\/(A/\\((B)/\\(C))))\\/((B/\\(A))/\\(C))))'
-    formula = r'(A\/B)/\!(A/\B)'
+    formula = '!((((!((!A)/\\!B)/\\(C))\\/(A/\\((B)/\\(!C))))\\/((B/\\(A))/\\(C))))'
+    # formula = r'(A\/B)/\!(A/\B)'
 
     lexer = Lexer(string_to_parse=formula)
 
@@ -47,7 +47,6 @@ if __name__ == '__main__':
     tokens = lexer.get_tokens()
     res_string = lexer.tokens_to_string(tokens=tokens)
 
-    print(f'Tokens out of lexer: {tokens}')
     print(f'String from tokens: {res_string}')
     print(f'Is string from tokens equal to formula: {res_string == formula}')
 
@@ -56,7 +55,6 @@ if __name__ == '__main__':
     node = parser.parse()
 
     result = postorder_traversal(node)
-    print(f'Tokens after parser: {result}')
 
     res_string_again = get_string_after_traversal(operations=result)
 

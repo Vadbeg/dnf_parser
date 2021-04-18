@@ -39,8 +39,12 @@ class Parser:
             return Value(token=token)
         elif isinstance(token, OPEN_BRACKET):
             self.__eat(OPEN_BRACKET)
-            node = self.__expr()  # TODO: Change it!
+            node = self.__term()  # TODO: Change it!
             self.__eat(CLOSE_BRACKET)
+
+            return node
+        elif isinstance(token, NOT_OPERATOR):
+            node = self.__expr()
 
             return node
 
@@ -57,26 +61,20 @@ class Parser:
             self.__eat(type(token))
 
             right_node = self.__factor()
+
             left_node = BinOp(left=left_node, operation=token, right=right_node)
 
         return left_node
 
     def __expr(self):
-        node = self.__term()
+        token = self.__current_token
 
-        print(f'Node: {node} is_in_return: {not isinstance(self.__current_token, NOT_OPERATOR)}')
+        self.__eat(type(token))
 
-        while isinstance(
-                self.__current_token, NOT_OPERATOR
-        ):
-            token = self.__current_token
-
-            self.__eat(type(token))
-
-            value_node = self.__factor()
-            node = NotOp(value=value_node, operation=token)
+        value_node = self.__factor()
+        node = NotOp(value=value_node, operation=token)
 
         return node
 
     def parse(self) -> Union[BinOp, Value]:
-        return self.__expr()
+        return self.__term()
