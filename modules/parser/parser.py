@@ -1,3 +1,10 @@
+"""
+Лабораторная работа №2 по дисциплине ЛОИС
+Вариант F: Проверить, является ли формула ДНФ
+Выполнена студентом группы 821701 БГУИР Титко Вадим Сергеевич
+Файл с функциями алгоритма
+"""
+
 """Module with parser"""
 
 from typing import Type, Union
@@ -20,6 +27,9 @@ class Parser:
 
         self.__current_token = self.__lexer.peek()
         self.__token_index = 0
+
+        # self.__num_open_brackets = 0
+        # self.__num_close_brackets = 0
 
     def __eat(self, token_type: Type[TOKEN]):
         token = self.__current_token
@@ -77,7 +87,12 @@ class Parser:
         return node
 
     def parse(self) -> Union[BinOp, Value]:
-        if not isinstance(self.__lexer.peek(0), OPEN_BRACKET) or \
+        tokens = self.__lexer.get_tokens()
+
+        if (len(tokens) == 1) and isinstance(tokens[0], (CONST, SYBMOL)):
+            pass
+
+        elif not isinstance(self.__lexer.peek(0), OPEN_BRACKET) or \
                 not isinstance(self.__lexer.peek(-1), CLOSE_BRACKET):
             raise InvalidSyntax(f'Bad main brackets!')
 

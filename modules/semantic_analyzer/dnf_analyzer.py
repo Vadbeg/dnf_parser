@@ -1,3 +1,10 @@
+"""
+Лабораторная работа №2 по дисциплине ЛОИС
+Вариант F: Проверить, является ли формула ДНФ
+Выполнена студентом группы 821701 БГУИР Титко Вадим Сергеевич
+Файл с функциями алгоритма
+"""
+
 """Module with DNF analyzer"""
 
 from typing import Union, Optional
@@ -30,16 +37,62 @@ class DNFAnalyzer:
 
         self.__parser = self.__create_parser()
 
+    def postorder_traversal(self, root):
+        res = list()
+
+        if hasattr(root, 'left'):
+            res.append(OPEN_BRACKET(value='('))
+            res.extend(self.postorder_traversal(root.left))
+            res.append(root)
+            res.extend(self.postorder_traversal(root.right))
+            res.append(CLOSE_BRACKET(value=')'))
+
+        elif hasattr(root, 'value') and isinstance(root, NotOp):
+            res.append(OPEN_BRACKET(value='('))
+            res.append(root)
+            res.extend(self.postorder_traversal(root.value))
+            res.append(CLOSE_BRACKET(value=')'))
+        else:
+            res = [root]
+
+        return res
+
+    def get_string_after_traversal(self, operations):
+        res = ''
+
+        for curr_operation in operations:
+            if isinstance(curr_operation, Value):
+                res += str(curr_operation.value)
+            elif isinstance(curr_operation, (BinOp, NotOp)):
+                res += str(curr_operation.operation.value)
+            else:
+                if curr_operation is not None:
+                    res += curr_operation.value
+
+        return res
+
     def __create_parser(self):
         lexer = Lexer(string_to_parse=self.formula_to_analyze)
         lexer.parse_tokens()
+
+        tokens = lexer.get_tokens()
 
         parser = Parser(lexer=lexer)
 
         return parser
 
+    def check_brackets(self, root):
+        result = self.postorder_traversal(root)
+        res_string_again = self.get_string_after_traversal(operations=result)
+
+        if res_string_again != self.formula_to_analyze:
+
+            raise ValueError('Bad brackets')
+
     def __get_tree_root(self):
         root = self.__parser.parse()
+
+        self.check_brackets(root=root)
 
         if root is None:
             raise BadTokensForDNF(f'Bad token!')
@@ -83,6 +136,7 @@ class DNFAnalyzer:
     def __check_values(node):
         if isinstance(node, BinOp):
             if isinstance(node.left, Value) and isinstance(node.right, Value):
+
                 if node.left.value == node.right.value:
                     raise NotSimpleConjunctionSameValues(
                         f'Same values for node: {node}\n'
@@ -127,6 +181,9 @@ class DNFAnalyzer:
                         f'Op: {root.operation} Left: {root.left} Right: {root.right}'
                     )
 
+            if root.left is None or root.right is None:
+                raise ValueError(f'No token. Left: {root.left} Right: {root.right}')
+
             if not isinstance(root.left, Value):
                 is_dnf = self.__analyzing(root.left)
 
@@ -165,5 +222,8 @@ class DNFAnalyzer:
                     f'{root} is not simple conjunction. '
                     f'Op: {root.operation} Value: {root.value}'
                 )
+
+        elif isinstance(root, Value):
+            return True
 
         return is_dnf

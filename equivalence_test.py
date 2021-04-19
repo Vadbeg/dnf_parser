@@ -1,8 +1,14 @@
+"""
+Лабораторная работа №2 по дисциплине ЛОИС
+Вариант 6: Проверить, является ли формулы эквиваленты
+Выполнена студентом группы 821701 БГУИР Титко Вадим Сергеевич
+Файл с функциями алгоритма
+"""
+
+
 """Module with testing of equivalence testing"""
 
-
 from modules.semantic_analyzer.equivalent_formulas import EquivalenceChecker
-
 
 
 if __name__ == '__main__':

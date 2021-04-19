@@ -1,3 +1,10 @@
+"""
+Лабораторная работа №2 по дисциплине ЛОИС
+Вариант F: Проверить, является ли формула ДНФ
+Выполнена студентом группы 821701 БГУИР Титко Вадим Сергеевич
+Файл с функциями алгоритма
+"""
+
 """Module with lexer"""
 
 from typing import Union, List
@@ -97,7 +104,7 @@ class Lexer:
         resulted_string = ''
 
         for curr_token in tokens:
-            resulted_string += curr_token.value
+            resulted_string += str(curr_token.value)
 
         return resulted_string
 
