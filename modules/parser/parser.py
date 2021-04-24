@@ -147,6 +147,6 @@ class Parser:
         self.__token_index = 0
         self.__current_token = self.__lexer.peek(0)
 
-        self.__check_brackets(root=parse_root)
+        # self.__check_brackets(root=parse_root)
 
         return parse_root

@@ -10,7 +10,7 @@
 from typing import Union, Optional
 
 from modules.lexer.lexer import Lexer
-from modules.parser.parser import Parser
+from modules.parser.parser2 import Parser
 from modules.parser.ast_nodes import BinOp, NotOp, Value
 from modules.utils import (
     NotSimpleConjunctionBadOperation,
@@ -146,21 +146,22 @@ class DNFAnalyzer:
             self.__check_values(node=root.left)
             self.__check_values(node=root.right)
 
-            if isinstance(root.left, Value) and isinstance(root.right, Value):
-                if isinstance(root.operation, AND_OPERATOR):
-                    return True
-                else:
-                    raise NotSimpleConjunctionBadOperation(
-                        f'{root} is not simple conjunction. '
-                        f'Op: {root.operation} Left: {root.left} Right: {root.right}'
-                    )
+            # if isinstance(root.left, Value) and isinstance(root.right, Value):
+            #     if isinstance(root.operation, AND_OPERATOR):
+            #         return True
+            #     else:
+            #         raise NotSimpleConjunctionBadOperation(
+            #             f'{root} is not simple conjunction. '
+            #             f'Op: {root.operation} Left: {root.left} Right: {root.right}'
+            #         )
 
-            if isinstance(root.operation, OR_OPERATOR):
+            if isinstance(root.operation, (OR_OPERATOR, AND_OPERATOR)):
                 if self.__is_simple_value_or_nor(root.left) and self.__is_simple_value_or_nor(root.right):
-                    raise NotSimpleConjunctionBadOperation(
-                        f'Not a simple conjunction!\n'
-                        f'Op: {root.operation} Left: {root.left} Right: {root.right}'
-                    )
+                    # raise NotSimpleConjunctionBadOperation(
+                    #     f'Not a simple conjunction!\n'
+                    #     f'Op: {root.operation} Left: {root.left} Right: {root.right}'
+                    # )
+                    return True
 
             if root.left is None or root.right is None:
                 raise ValueError(f'No token. Left: {root.left} Right: {root.right}')
@@ -170,6 +171,9 @@ class DNFAnalyzer:
 
                 if is_dnf:
                     if isinstance(root.operation, AND_OPERATOR):
+                        if isinstance(root.left.operation, OR_OPERATOR):
+                            return False
+
                         is_dnf = True
                     elif not isinstance(root.operation, OR_OPERATOR) and \
                             not isinstance(root.left, NotOp):
@@ -186,6 +190,9 @@ class DNFAnalyzer:
 
                 if is_dnf:
                     if isinstance(root.operation, AND_OPERATOR):
+                        if isinstance(root.right.operation, OR_OPERATOR):
+                            return False
+
                         is_dnf = True
                     elif not isinstance(root.operation, OR_OPERATOR) and \
                             not isinstance(root.right, NotOp):

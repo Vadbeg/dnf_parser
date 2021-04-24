@@ -8,7 +8,7 @@
 """Entry point to project"""
 
 from modules.lexer.lexer import Lexer
-from modules.parser.parser import Parser
+from modules.parser.parser2 import Parser
 from modules.parser.ast_nodes import Value, BinOp, NotOp
 from modules.semantic_analyzer.dnf_analyzer import DNFAnalyzer
 from modules.tokens import OPEN_BRACKET, CLOSE_BRACKET
@@ -52,7 +52,7 @@ def get_string_after_traversal(operations):
 
 if __name__ == '__main__':
     # formula = r'(((((!A)/\B)/\(!C))\/(A/\((!B)/\(!C))))\/((B/\(!A))/\(!C)))'
-    formula = r'(((!A)/\D)\/(B/\C))'
+    formula = r''
 
     lexer = Lexer(string_to_parse=formula)
 
@@ -73,7 +73,6 @@ if __name__ == '__main__':
     # print(f'Is string after traversal equal to formula: {res_string_again == formula}')
 
     dnf_analyzer = DNFAnalyzer(formula_to_analyze=formula)
-
     res = dnf_analyzer.analyze_formula()
 
     print(f'Analization result: {res}')
