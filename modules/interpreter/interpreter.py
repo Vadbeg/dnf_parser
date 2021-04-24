@@ -1,19 +1,15 @@
 """Module with interpreter for parser"""
 
-from typing import List, Dict, Union
+from typing import List, Dict
 
 from modules.lexer.lexer import Lexer
-from modules.parser.parser import Parser
+from modules.parser.parser2 import Parser
 from modules.parser.ast_nodes import BinOp, NotOp, Value
 from modules.utils import (
     BadTokensForDNF,
 )
 from modules.tokens import (
-    EOF, CONST, SYBMOL,
-    OPEN_BRACKET, CLOSE_BRACKET,
-    AND_OPERATOR, OR_OPERATOR,
-    NOT_OPERATOR, IMPLICATION,
-    EQUIVALENCE, TOKEN
+    CONST, SYBMOL,
 )
 
 

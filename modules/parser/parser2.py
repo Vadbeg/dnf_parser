@@ -112,6 +112,9 @@ class Parser:
         if self.__token_index < len(self.__lexer.get_tokens()):
             raise InvalidSyntax(f'Bad syntax!')
 
+        self.__token_index = 0
+        self.__current_token = self.__lexer.peek()
+
         return root
 
 

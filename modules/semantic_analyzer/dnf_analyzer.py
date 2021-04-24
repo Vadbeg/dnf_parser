@@ -15,16 +15,12 @@ from modules.parser.ast_nodes import BinOp, NotOp, Value
 from modules.utils import (
     NotSimpleConjunctionBadOperation,
     BadTokensForDNF,
-    NotSimpleConjunctionBadNot,
     NotSimpleConjunctionSameValues,
-    InvalidSyntax
 )
 from modules.tokens import (
-    EOF, CONST, SYBMOL,
-    OPEN_BRACKET, CLOSE_BRACKET,
+    SYBMOL,
     AND_OPERATOR, OR_OPERATOR,
-    NOT_OPERATOR, IMPLICATION,
-    EQUIVALENCE, TOKEN
+    NOT_OPERATOR
 )
 
 
@@ -90,130 +86,50 @@ class DNFAnalyzer:
                 raise BadTokensForDNF(f'Bad token: {node.token}')
 
     @staticmethod
-    def __check_values(node):
-        if isinstance(node, BinOp):
-            if isinstance(node.left, Value) and isinstance(node.right, Value):
+    def __check_values_rec(node: Union[BinOp, NotOp, Value]) -> list:
+        node_values = list()
 
-                if node.left.value == node.right.value:
-                    raise NotSimpleConjunctionSameValues(
-                        f'Same values for node: {node}\n'
-                        f'Left: {node.left.value} | '
-                        f'Right: {node.right.value}'
-                    )
-            if isinstance(node.left, NotOp) and isinstance(node.right, Value):
-                if isinstance(node.left.value, Value):
-                    if node.left.value.value == node.right.value:
-                        raise NotSimpleConjunctionSameValues(
-                            f'Same values for node: {node}\n'
-                            f'Left: !{node.left.value.value} | '
-                            f'Right: {node.right.value}'
-                        )
-            if isinstance(node.left, Value) and isinstance(node.right, NotOp):
-                if isinstance(node.right.value, Value):
-                    if node.left.value == node.right.value.value:
-                        raise NotSimpleConjunctionSameValues(
-                            f'Same values for node: {node}\n'
-                            f'Left: {node.left.value} | '
-                            f'Right: !{node.right.value.value}'
-                        )
+        if isinstance(node, BinOp) and isinstance(node.operation, AND_OPERATOR):
+            node_values.extend(DNFAnalyzer.__check_values_rec(node.left))
+            node_values.extend(DNFAnalyzer.__check_values_rec(node.right))
 
-    @staticmethod
-    def __is_simple_value_or_nor(root: Union[NotOp, BinOp, Value]) -> bool:
-        """
-        Checks if current node is simple value or simple nor operation
+        elif isinstance(node, NotOp) and isinstance(node.value, Value):
+            node_values.append(node.value.value)
 
-        :param root:
-        :return: True if is simpl, else False
-        """
+        elif isinstance(node, Value):
+            node_values.append(node.value)
+        else:
+            raise NotSimpleConjunctionBadOperation(f'Bad operation token: {node.operation}')
 
-        if isinstance(root, Value):
-            return True
+        return node_values
 
-        if isinstance(root, NotOp) and isinstance(root.value, Value):
-            return True
+    def __check_values(self, node: Union[BinOp]):
+        node_values = self.__check_values_rec(node=node)
 
-        return False
+        if len(node_values) != len(set(node_values)):
+            raise NotSimpleConjunctionSameValues(f'Values: {node_values}')
 
     def __analyzing(
             self, root: Union[NotOp, BinOp],
     ):
         self.__check_tokens(node=root)
-        self.__check_values(node=root)
 
         is_dnf = True
 
         if isinstance(root, BinOp):
-            self.__check_values(node=root.left)
-            self.__check_values(node=root.right)
 
-            # if isinstance(root.left, Value) and isinstance(root.right, Value):
-            #     if isinstance(root.operation, AND_OPERATOR):
-            #         return True
-            #     else:
-            #         raise NotSimpleConjunctionBadOperation(
-            #             f'{root} is not simple conjunction. '
-            #             f'Op: {root.operation} Left: {root.left} Right: {root.right}'
-            #         )
+            if isinstance(root.operation, AND_OPERATOR):
+                self.__check_values(node=root)
 
-            if isinstance(root.operation, (OR_OPERATOR, AND_OPERATOR)):
-                if self.__is_simple_value_or_nor(root.left) and self.__is_simple_value_or_nor(root.right):
-                    # raise NotSimpleConjunctionBadOperation(
-                    #     f'Not a simple conjunction!\n'
-                    #     f'Op: {root.operation} Left: {root.left} Right: {root.right}'
-                    # )
-                    return True
-
-            if root.left is None or root.right is None:
-                raise ValueError(f'No token. Left: {root.left} Right: {root.right}')
-
-            if not isinstance(root.left, Value):
-                is_dnf = self.__analyzing(root.left)
-
-                if is_dnf:
-                    if isinstance(root.operation, AND_OPERATOR):
-                        if isinstance(root.left.operation, OR_OPERATOR):
-                            return False
-
-                        is_dnf = True
-                    elif not isinstance(root.operation, OR_OPERATOR) and \
-                            not isinstance(root.left, NotOp):
-                        return False
-                    elif isinstance(root.operation, OR_OPERATOR) and isinstance(root.left, NotOp):
-                        print('WTF')
-
-                        return True
-                else:
-                    return False
-
-            if not isinstance(root.right, Value):
-                is_dnf = self.__analyzing(root.right)
-
-                if is_dnf:
-                    if isinstance(root.operation, AND_OPERATOR):
-                        if isinstance(root.right.operation, OR_OPERATOR):
-                            return False
-
-                        is_dnf = True
-                    elif not isinstance(root.operation, OR_OPERATOR) and \
-                            not isinstance(root.right, NotOp):
-                        return False
-                    elif isinstance(root.operation, OR_OPERATOR) and isinstance(root.right, NotOp):
-                        return True
-                else:
-                    return False
-
-        elif isinstance(root, NotOp):
-            self.__check_values(node=root.value)
-
-            if isinstance(root.value, Value):
                 return True
-            else:
-                raise NotSimpleConjunctionBadNot(
-                    f'{root} is not simple conjunction. '
-                    f'Op: {root.operation} Value: {root.value}'
-                )
 
-        elif isinstance(root, Value):
-            return True
+            if isinstance(root.operation, OR_OPERATOR):
+                is_dnf_left = self.__analyzing(root=root.left)
+                is_dnf_right = self.__analyzing(root=root.right)
+
+                if is_dnf_left and is_dnf_right:
+                    return True
+                else:
+                    return False
 
         return is_dnf

@@ -51,8 +51,8 @@ def get_string_after_traversal(operations):
 
 
 if __name__ == '__main__':
-    # formula = r'(((((!A)/\B)/\(!C))\/(A/\((!B)/\(!C))))\/((B/\(!A))/\(!C)))'
-    formula = r''
+    # formula = r'(((((!A)/\B)/\((!C)/\A))\/(A/\((!B)/\(!C))))\/(((!A)/\(!B))/\(!C)))'
+    formula = r'(1\/A)'
 
     lexer = Lexer(string_to_parse=formula)
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     print(formula)
     # print(f'Is string after traversal equal to formula: {res_string_again == formula}')
 
-    dnf_analyzer = DNFAnalyzer(formula_to_analyze=formula)
-    res = dnf_analyzer.analyze_formula()
+    # dnf_analyzer = DNFAnalyzer(formula_to_analyze=formula)
+    # res = dnf_analyzer.analyze_formula()
 
-    print(f'Analization result: {res}')
+    # print(f'Analization result: {res}')

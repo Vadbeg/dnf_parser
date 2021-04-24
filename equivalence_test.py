@@ -12,8 +12,8 @@ from modules.semantic_analyzer.equivalent_formulas import EquivalenceChecker
 
 
 if __name__ == '__main__':
-    formula1 = r'(!0\/A)'
-    formula2 = r'(1\/A)'
+    formula1 = r'(P->Q)'
+    formula2 = r'((!P)\/Q)'
 
     equivalence_checker = EquivalenceChecker(formula_first=formula1, formula_second=formula2)
 

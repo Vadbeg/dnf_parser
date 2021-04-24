@@ -7,7 +7,7 @@
 
 """Module with tests for equivalence"""
 
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from modules.semantic_analyzer.equivalent_formulas import EquivalenceChecker
 
