@@ -52,7 +52,7 @@ def get_string_after_traversal(operations):
 
 if __name__ == '__main__':
     # formula = '((((!((!A)/\\!B)/\\(C))\\/(A/\\((B)/\\(!C))))\\/((B/\\(A))/\\(C))))'
-    formula = r'(((!A)/\C)\/(B/\D))'
+    formula = r'((!C)\/(A/\B))'
     # formula = r'((((((!A)/\B)/\(!C))\/(A/\((!B)/\(!C))))\/(((!A)/\(!B))/\(!C))))'
 
     lexer = Lexer(string_to_parse=formula)

@@ -108,3 +108,9 @@ class Lexer:
 
         return resulted_string
 
+    def get_original_string(self) -> str:
+        if self.char_reader.string_to_parse is None:
+            raise ValueError(f'No string passed')
+
+        return self.char_reader.string_to_parse
+

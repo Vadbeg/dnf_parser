@@ -16,7 +16,8 @@ from modules.utils import (
     NotSimpleConjunctionBadOperation,
     BadTokensForDNF,
     NotSimpleConjunctionBadNot,
-    NotSimpleConjunctionSameValues
+    NotSimpleConjunctionSameValues,
+    InvalidSyntax
 )
 from modules.tokens import (
     EOF, CONST, SYBMOL,
@@ -37,40 +38,6 @@ class DNFAnalyzer:
 
         self.__parser = self.__create_parser()
 
-    def postorder_traversal(self, root):
-        res = list()
-
-        if hasattr(root, 'left'):
-            res.append(OPEN_BRACKET(value='('))
-            res.extend(self.postorder_traversal(root.left))
-            res.append(root)
-            res.extend(self.postorder_traversal(root.right))
-            res.append(CLOSE_BRACKET(value=')'))
-
-        elif hasattr(root, 'value') and isinstance(root, NotOp):
-            res.append(OPEN_BRACKET(value='('))
-            res.append(root)
-            res.extend(self.postorder_traversal(root.value))
-            res.append(CLOSE_BRACKET(value=')'))
-        else:
-            res = [root]
-
-        return res
-
-    def get_string_after_traversal(self, operations):
-        res = ''
-
-        for curr_operation in operations:
-            if isinstance(curr_operation, Value):
-                res += str(curr_operation.value)
-            elif isinstance(curr_operation, (BinOp, NotOp)):
-                res += str(curr_operation.operation.value)
-            else:
-                if curr_operation is not None:
-                    res += curr_operation.value
-
-        return res
-
     def __create_parser(self):
         lexer = Lexer(string_to_parse=self.formula_to_analyze)
         lexer.parse_tokens()
@@ -81,18 +48,8 @@ class DNFAnalyzer:
 
         return parser
 
-    def check_brackets(self, root):
-        result = self.postorder_traversal(root)
-        res_string_again = self.get_string_after_traversal(operations=result)
-
-        if res_string_again != self.formula_to_analyze:
-
-            raise ValueError('Bad brackets')
-
     def __get_tree_root(self):
         root = self.__parser.parse()
-
-        self.check_brackets(root=root)
 
         if root is None:
             raise BadTokensForDNF(f'Bad token!')
@@ -194,12 +151,14 @@ class DNFAnalyzer:
                             not isinstance(root.left, NotOp):
                         return False
                     elif isinstance(root.operation, OR_OPERATOR) and isinstance(root.left, NotOp):
-                        return False
+                        return True
                 else:
                     return False
 
             if not isinstance(root.right, Value):
                 is_dnf = self.__analyzing(root.right)
+
+                print(root.right, is_dnf)
 
                 if is_dnf:
                     if isinstance(root.operation, AND_OPERATOR):
@@ -208,7 +167,7 @@ class DNFAnalyzer:
                             not isinstance(root.right, NotOp):
                         return False
                     elif isinstance(root.operation, OR_OPERATOR) and isinstance(root.right, NotOp):
-                        return False
+                        return True
                 else:
                     return False
 
@@ -216,6 +175,8 @@ class DNFAnalyzer:
             self.__check_values(node=root.value)
 
             if isinstance(root.value, Value):
+                print(f'WTF')
+
                 return True
             else:
                 raise NotSimpleConjunctionBadNot(

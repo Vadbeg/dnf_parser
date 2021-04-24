@@ -74,6 +74,9 @@ class Parser:
 
             left_node = BinOp(left=left_node, operation=token, right=right_node)
 
+            if (left_node is None) or (right_node is None):
+                raise InvalidSyntax(f'Bad values of operation: {token}')
+
         return left_node
 
     def __expr(self):
@@ -86,6 +89,49 @@ class Parser:
 
         return node
 
+    def __postorder_traversal(self, root):
+        res = list()
+
+        if hasattr(root, 'left'):
+            res.append(OPEN_BRACKET(value='('))
+            res.extend(self.__postorder_traversal(root.left))
+            res.append(root)
+            res.extend(self.__postorder_traversal(root.right))
+            res.append(CLOSE_BRACKET(value=')'))
+
+        elif hasattr(root, 'value') and isinstance(root, NotOp):
+            res.append(OPEN_BRACKET(value='('))
+            res.append(root)
+            res.extend(self.__postorder_traversal(root.value))
+            res.append(CLOSE_BRACKET(value=')'))
+        else:
+            res = [root]
+
+        return res
+
+    @staticmethod
+    def __get_string_after_traversal(operations):
+        res = ''
+
+        for curr_operation in operations:
+            if isinstance(curr_operation, Value):
+                res += str(curr_operation.value)
+            elif isinstance(curr_operation, (BinOp, NotOp)):
+                res += str(curr_operation.operation.value)
+            else:
+                if curr_operation is not None:
+                    res += curr_operation.value
+
+        return res
+
+    def __check_brackets(self, root):
+        result = self.__postorder_traversal(root)
+        res_string_again = self.__get_string_after_traversal(operations=result)
+
+        if res_string_again != self.__lexer.get_original_string():
+
+            raise InvalidSyntax(f'Syntax is invalid. Maybe you wanted: {res_string_again}')
+
     def parse(self) -> Union[BinOp, Value]:
         tokens = self.__lexer.get_tokens()
 
@@ -96,9 +142,11 @@ class Parser:
                 not isinstance(self.__lexer.peek(-1), CLOSE_BRACKET):
             raise InvalidSyntax(f'Bad main brackets!')
 
-        parse_result = self.__term()
+        parse_root = self.__term()
 
         self.__token_index = 0
         self.__current_token = self.__lexer.peek(0)
 
-        return parse_result
+        self.__check_brackets(root=parse_root)
+
+        return parse_root
