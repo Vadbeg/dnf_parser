@@ -117,6 +117,23 @@ class DNFAnalyzer:
                             f'Right: !{node.right.value.value}'
                         )
 
+    @staticmethod
+    def __is_simple_value_or_nor(root: Union[NotOp, BinOp, Value]) -> bool:
+        """
+        Checks if current node is simple value or simple nor operation
+
+        :param root:
+        :return: True if is simpl, else False
+        """
+
+        if isinstance(root, Value):
+            return True
+
+        if isinstance(root, NotOp) and isinstance(root.value, Value):
+            return True
+
+        return False
+
     def __analyzing(
             self, root: Union[NotOp, BinOp],
     ):
@@ -138,6 +155,13 @@ class DNFAnalyzer:
                         f'Op: {root.operation} Left: {root.left} Right: {root.right}'
                     )
 
+            if isinstance(root.operation, OR_OPERATOR):
+                if self.__is_simple_value_or_nor(root.left) and self.__is_simple_value_or_nor(root.right):
+                    raise NotSimpleConjunctionBadOperation(
+                        f'Not a simple conjunction!\n'
+                        f'Op: {root.operation} Left: {root.left} Right: {root.right}'
+                    )
+
             if root.left is None or root.right is None:
                 raise ValueError(f'No token. Left: {root.left} Right: {root.right}')
 
@@ -151,14 +175,14 @@ class DNFAnalyzer:
                             not isinstance(root.left, NotOp):
                         return False
                     elif isinstance(root.operation, OR_OPERATOR) and isinstance(root.left, NotOp):
+                        print('WTF')
+
                         return True
                 else:
                     return False
 
             if not isinstance(root.right, Value):
                 is_dnf = self.__analyzing(root.right)
-
-                print(root.right, is_dnf)
 
                 if is_dnf:
                     if isinstance(root.operation, AND_OPERATOR):
@@ -175,8 +199,6 @@ class DNFAnalyzer:
             self.__check_values(node=root.value)
 
             if isinstance(root.value, Value):
-                print(f'WTF')
-
                 return True
             else:
                 raise NotSimpleConjunctionBadNot(

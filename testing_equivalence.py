@@ -12,21 +12,21 @@ from typing import List, Tuple, Union
 from modules.semantic_analyzer.equivalent_formulas import EquivalenceChecker
 
 TEST_CASES = [
-    (r'(A\/!B)', r'(!A\/B)', False),
-    (r'(!A)', r'(!B/\(B\/!A))', False),
-    (r'(!A)', r'(!A/\(B\/!A))', True),
+    (r'(A\/(!B))', r'((!A)\/B)', False),
+    (r'(!A)', r'((!B)/\(B\/(!A)))', False),
+    (r'(!A)', r'((!A)/\(B\/(!A)))', True),
     (r'(!A)', r'(!(!(!A)))', True),
-    (r'(A/\!A)', r'(B/\!B)', True),
+    (r'(A/\(!A))', r'(B/\(!B))', True),
     (r'(P~Q)', r'(Q~P)', True),
-    (r'(P->Q)', r'(!P\/Q)', True),
-    (r'(P->Q)', r'(!P/\!Q)', False),
-    (r'(0)', r'(!P/\!Q)', False),
-    (r'(!0\/A)', r'(1\/A)', True),
-    (r'(!0\/A)', r'(1\/A)', True),
-    (r'((!(A->!B))/\(!(B->!A)))', r'((P->Q)/\(Q->P))', False),
-    (r'((!(A->!B))/\(!(B->!A)))', r'(A/\B)', True),
-    (r'(0)', r'(1)', False),
-    (r'(0)', r'(!1)', True),
+    (r'(P->Q)', r'((!P)\/Q)', True),
+    (r'(P->Q)', r'((!P)/\(!Q))', False),
+    (r'0', r'((!P)/\(!Q))', False),
+    (r'((!0)\/A)', r'(1\/A)', True),
+    (r'((!0)\/A)', r'(1\/A)', True),
+    (r'((!(A->(!B)))/\(!(B->(!A))))', r'((P->Q)/\(Q->P))', False),
+    (r'((!(A->(!B)))/\(!(B->(!A))))', r'(A/\B)', True),
+    (r'0', r'1', False),
+    (r'0', r'(!1)', True),
 ]
 
 

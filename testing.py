@@ -18,7 +18,7 @@ TEST_CASES = [
     (r'((!C)\/(A/\B))', True),
     (r'((A/\B)\/(!C))', True),
     (r'(((((!A)/\B)/\(!C))\/(A/\((!B)/\(!C))))\/(((!A)/\(!B))/\(!C)))', True),
-    (r'(((((!A)\/B)/\(!C))\/(A/\((!B)/\(!C))))\/(((!A)/\(!B))/\(!C)))', False),
+    (r'(((((!A)\/B)/\(!C))\/(A/\((!B)/\(!C))))\/(((!A)/\(!B))/\(!C)))', Exception),
     (r'(((((!A)/\B)/\((!C)/\A))\/(A/\((!B)/\(!C))))\/(((!A)/\(!B))/\(!C)))', True),
     (r'(((((!A)/\D)/\(!C))\/(A/\((!B)/\(!C))))\/(((!A)/\(!B))/\(!C)))', True),
     ('', Exception),
@@ -34,23 +34,30 @@ TEST_CASES = [
 
 
 def try_tests(tests: List[Tuple[str, Union[bool, Exception]]]):
-    for curr_test in tests:
-        print(curr_test)
+    for idx, curr_test in enumerate(tests):
         curr_formula = curr_test[0]
         curr_result = curr_test[1]
 
+        output = None
+
         try:
             dnf_analyzer = DNFAnalyzer(formula_to_analyze=curr_test[0])
-            res = dnf_analyzer.analyze_formula()
-            print(res)
+            output = dnf_analyzer.analyze_formula()
 
-            assert curr_result == res
+            assert curr_result == output, f'Formula: {curr_formula}\nCurr res: {curr_result}\nOut: {output}'
         except Exception as err:
+            if isinstance(err, AssertionError):
+                raise err
+
             if not isinstance(err, curr_result):
                 raise err
 
-            print(err)
+            output = err
 
+        print(f'Idx: {idx}\n'
+              f'Formula: {curr_formula}\n'
+              f'True result: {curr_result}\n'
+              f'Output: {output}\n')
         print('-' * 15)
 
 
