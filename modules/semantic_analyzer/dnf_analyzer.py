@@ -85,13 +85,12 @@ class DNFAnalyzer:
             if type(node.token) not in self.GOOD_TOKENS:
                 raise BadTokensForDNF(f'Bad token: {node.token}')
 
-    @staticmethod
-    def __check_values_rec(node: Union[BinOp, NotOp, Value]) -> list:
+    def __check_values_rec(self, node: Union[BinOp, NotOp, Value]) -> list:
         node_values = list()
 
         if isinstance(node, BinOp) and isinstance(node.operation, AND_OPERATOR):
-            node_values.extend(DNFAnalyzer.__check_values_rec(node.left))
-            node_values.extend(DNFAnalyzer.__check_values_rec(node.right))
+            node_values.extend(self.__check_values_rec(node.left))
+            node_values.extend(self.__check_values_rec(node.right))
 
         elif isinstance(node, NotOp) and isinstance(node.value, Value):
             node_values.append(node.value.value)
@@ -103,7 +102,7 @@ class DNFAnalyzer:
 
         return node_values
 
-    def __check_values(self, node: Union[BinOp]):
+    def __check_values(self, node: Union[BinOp, NotOp, Value]):
         node_values = self.__check_values_rec(node=node)
 
         if len(node_values) != len(set(node_values)):
@@ -114,7 +113,7 @@ class DNFAnalyzer:
     ):
         self.__check_tokens(node=root)
 
-        is_dnf = True
+        is_dnf = False
 
         if isinstance(root, BinOp):
 
@@ -131,5 +130,15 @@ class DNFAnalyzer:
                     return True
                 else:
                     return False
+
+        elif isinstance(root, NotOp):
+            self.__check_values(node=root)
+
+            return True
+
+        elif isinstance(root, Value):
+            self.__check_values(node=root)
+
+            return True
 
         return is_dnf

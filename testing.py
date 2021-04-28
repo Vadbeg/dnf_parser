@@ -34,7 +34,9 @@ TEST_CASES = [
     ('(!A)', True),
     (r'(A/\B)', True),
     (r'(A/\(!B))', True),
-    (r'(A/\(!A))', Exception)
+    (r'(A/\(!A))', Exception),
+    (r'((B/\A)\/(!C))', True),
+    (r'((B/\A)/\(!C))', True),
 ]
 
 
